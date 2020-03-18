@@ -2,15 +2,25 @@ import 'package:flutter/material.dart';
 import './home.dart';
 
 class TandaVitalApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Home();
+  }
+}
+
+class App extends StatelessWidget {
   final appTitle = 'Dokumentasi Tanda Vital';
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: this.appTitle,
-      home: Home(),
+      home: TandaVitalApp(),
       theme: ThemeData(
-        primarySwatch: Colors.teal
+        primarySwatch: Colors.green,
+        buttonTheme: ButtonThemeData(
+          textTheme: ButtonTextTheme.primary
+        )
       ),
       debugShowCheckedModeBanner: false,
     );
@@ -18,5 +28,5 @@ class TandaVitalApp extends StatelessWidget {
 }
 
 void main() {
-  runApp(TandaVitalApp());
+  runApp(App());
 }
