@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './home.dart';
+import 'package:tanda_vital_flutter/home.dart';
 
 class TandaVitalApp extends StatelessWidget {
   @override

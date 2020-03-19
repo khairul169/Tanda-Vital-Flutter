@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:tanda_vital_flutter/pasien.dart';
 import 'package:tanda_vital_flutter/view.dart';
 import 'package:tanda_vital_flutter/utils.dart';
+import 'package:tanda_vital_flutter/database.dart';
 
 class PasienListItem extends StatelessWidget {
   final PasienData itemData;
@@ -35,7 +37,9 @@ class PasienListItem extends StatelessWidget {
             ),
             Container(
               margin: EdgeInsets.only(top: 4),
-              child: Text(this.itemData.regNumber + ' • ' + this.itemData.age.toString() + ' th'),
+              child: Text(this.itemData.regNumber + ' • ' + this.itemData.age.toString() + ' th', style: TextStyle(
+                fontSize: 14
+              )),
             ),
           ]
         ),
@@ -165,27 +169,68 @@ class _HomeState extends State<Home> {
   List<PasienData> items = [];
   Map<String, dynamic> user;
 
-  _HomeState() {
-    items.add(PasienData(name: "Hello", age: 10, gender: 1));
-    items.add(PasienData(name: "World", age: 16, gender: 0));
+  void loadPasienList() async {
+    Database db = await AppDB.db;
+    List<Map<String, dynamic>> rows = await db.query('pasien', orderBy: 'nama ASC');
+
+    List<PasienData> newItems = [];
+    rows.forEach((row) {
+      newItems.add(PasienData(
+        id: row['id'],
+        regNumber: row['reg'],
+        name: row['nama'],
+        age: row['umur'],
+        gender: row['kelamin'],
+      ));
+    });
+
+    setState(() {
+      items = newItems;
+    });
   }
 
-  onAddPressed() async {
+  @override
+  void initState() {
+    super.initState();
+    loadPasienList();
+  }
+
+  void onAddPressed() async {
     final result = await Navigator.push(context, MaterialPageRoute(
       builder: (context) => TambahPasien()
     ));
 
-    if (result != null) {
-      setState(() {
-        items.add(result);
-      });
+    if (result is PasienData) {
+      var reg = result.regNumber;
+      var nama = result.name;
+      var umur = result.age;
+      var kelamin = result.gender;
+
+      Database db = await AppDB.db;
+      await db.execute('''INSERT INTO pasien
+        (reg, nama, umur, kelamin) VALUES
+        ('$reg', '$nama', '$umur', '$kelamin')
+      ''');
+
+      loadPasienList();
     }
   }
 
-  onRemove(id) {
+  void onRemove(id) async {
+    if (id < 0 || id >= items.length) {
+      return;
+    }
+
+    int dbId = items[id].id;
+
     setState(() {
       items.removeAt(id);
     });
+
+    Database db = await AppDB.db;
+    await db.execute("DELETE FROM pasien WHERE id='$dbId'");
+
+    loadPasienList();
   }
 
   @override
