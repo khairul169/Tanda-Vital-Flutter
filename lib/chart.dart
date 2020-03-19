@@ -61,6 +61,10 @@ class TimeChart extends StatelessWidget {
         behaviorPosition: charts.BehaviorPosition.start,
         titleStyleSpec: charts.TextStyleSpec(fontSize: 12)
       ),
+      charts.LinePointHighlighter(
+        showHorizontalFollowLine: charts.LinePointHighlighterFollowLineType.nearest,
+        showVerticalFollowLine: charts.LinePointHighlighterFollowLineType.none
+      )
     ];
 
     if (series.length > 1) {
